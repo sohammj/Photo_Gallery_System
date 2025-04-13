@@ -1645,16 +1645,31 @@ using json = nlohmann::json;
 // ...
 
 // Helper function to convert photo to JSON
+// Helper function to ensure a string is valid UTF-8
+string sanitizeString(const string& input) {
+    string result;
+    for (unsigned char c : input) {
+        // Skip or replace non-UTF-8 characters
+        if (c >= 0x20 && c <= 0x7E) {  // Basic ASCII
+            result += c;
+        } else {
+            result += ' ';  // Replace with space
+        }
+    }
+    return result;
+}
+
+// Helper function to convert photo to JSON
 json photoToJson(const Photo& photo) {
     json photoJson;
     photoJson["id"] = photo.getId();
-    photoJson["filename"] = photo.getFilename();
-    photoJson["location"] = photo.getLocation();
-    photoJson["dateTime"] = timeToString(photo.getDateTime());
-    photoJson["description"] = photo.getDescription();
+    photoJson["filename"] = sanitizeString(photo.getFilename());
+    photoJson["location"] = sanitizeString(photo.getLocation());
+    photoJson["dateTime"] = sanitizeString(timeToString(photo.getDateTime()));
+    photoJson["description"] = sanitizeString(photo.getDescription());
     photoJson["fileSize"] = photo.getFileSize();
     photoJson["viewCount"] = photo.getViewCount();
-    photoJson["tags"] = photo.getTagsAsString();
+    photoJson["tags"] = sanitizeString(photo.getTagsAsString());
     return photoJson;
 }
 
